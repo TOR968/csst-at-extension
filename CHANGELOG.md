@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/TOR968/csst-at-extension/compare/v1.0.0...v1.0.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* add browser toggle in plugin settings ([3d5b40f](https://github.com/TOR968/csst-at-extension/commit/3d5b40f2512d06e3d1e7252fef7739641932e275)), closes [#1a1a1a](https://github.com/TOR968/csst-at-extension/issues/1a1a1a) [#2d3748](https://github.com/TOR968/csst-at-extension/issues/2d3748)
+
 # 1.0.0 (2026-06-20)
 
 
