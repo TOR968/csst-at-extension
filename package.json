@@ -31,6 +31,7 @@
   "license": "MIT",
   "dependencies": {
     "@steambrew/client": "^5.8.5",
+    "@steambrew/webkit": "^5.8.4",
     "react": "^19.2.7"
   }
 }

@@ -1,4 +1,4 @@
-function csstatInjectMain(openExternal: boolean) {
+export function csstatInjectMain(openExternal: boolean, injector?: string) {
 	if (document.querySelector('.csstat-extension-container')) return;
 	if (!/steamcommunity\.com\/(id|profiles)\//.test(location.href)) return;
 
@@ -12,7 +12,7 @@ function csstatInjectMain(openExternal: boolean) {
 		}
 		const miniId = document.querySelector('[data-miniprofile]')?.getAttribute('data-miniprofile');
 		if (miniId && miniId !== '0') {
-			try { return (STEAMID64_BASE + BigInt(miniId)).toString(); } catch { /* ignore */ }
+			try { return (STEAMID64_BASE + BigInt(miniId)).toString(); } catch { }
 		}
 		try {
 			const xmlUrl = location.href.replace(/[?#].*/, '').replace(/\/$/, '') + '/?xml=1';
@@ -21,15 +21,21 @@ function csstatInjectMain(openExternal: boolean) {
 			const dom = new DOMParser().parseFromString(text, 'application/xml');
 			const id = dom.querySelector('steamID64')?.textContent;
 			if (id && id !== '0') return id;
-		} catch { /* ignore */ }
+		} catch { }
 		return null;
 	}
 
 	async function inject() {
 		const col = document.querySelector('.profile_rightcol');
 		if (!col || col.querySelector('.csstat-extension-container')) return;
+
+		const div = document.createElement('div');
+		div.className = 'account-row csstat-extension-container';
+		div.setAttribute('data-csstat-injector', injector || 'unknown');
+		col.insertBefore(div, col.children[1] ?? null);
+
 		const steamId = await getSteamId();
-		if (!steamId) { console.warn('[CSST.at] No SteamID'); return; }
+		if (!steamId) { console.warn('[CSST.at] No SteamID'); div.remove(); return; }
 
 		if (!document.getElementById('csstat-extension-style')) {
 			const s = document.createElement('style');
@@ -38,18 +44,12 @@ function csstatInjectMain(openExternal: boolean) {
 			document.head?.appendChild(s);
 		}
 
-		const div = document.createElement('div');
-		div.className = 'account-row csstat-extension-container';
-		const a = document.createElement('a');
-		// csst.at is behind Cloudflare, which challenges Steam's in-app CEF browser.
-		// When openExternal is on, route through Steam's protocol to the system browser
-		// (where the user's session passes); otherwise open inside the Steam browser.
 		const profileUrl = 'https://csst.at/profile/' + steamId;
+		const a = document.createElement('a');
 		a.href = openExternal ? 'steam://openurl_external/' + profileUrl : profileUrl;
 		a.className = 'csstat-btn';
 		a.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><line x1="12" y1="1" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="23"/><line x1="1" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="23" y2="12"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>CSST<span class="dot">.AT</span>';
 		div.appendChild(a);
-		col.insertBefore(div, col.children[1] ?? null);
 	}
 
 	if (document.querySelector('.profile_rightcol')) {
@@ -67,4 +67,4 @@ function csstatInjectMain(openExternal: boolean) {
 }
 
 export const buildInjectionCode = (openExternal: boolean) =>
-	`(${csstatInjectMain.toString()})(${openExternal === false ? 'false' : 'true'})`;
+	`(${csstatInjectMain.toString()})(${openExternal === false ? 'false' : 'true'}, 'cdp')`;
