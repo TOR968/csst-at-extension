@@ -1,12 +1,17 @@
-import { definePlugin } from '@steambrew/client';
-import { INJECTION_CODE } from './inject';
+import { useState } from 'react';
+import { definePlugin, Toggle } from '@steambrew/client';
+import { buildInjectionCode } from './inject';
+import { initSettings, getSettings, saveSettings } from './services/settings';
 
 const PROFILE_URL_PATTERN = /steamcommunity\.com\/(id|profiles)\//;
+
+let reloadOpenProfiles: () => Promise<void> = async () => {};
 
 async function setupCommunityInjection() {
 	const CDP = (window as any).MILLENNIUM_API?.ChromeDevToolsProtocol;
 	if (!CDP) { console.error('[CSST.at] No CDP available'); return; }
 
+	await initSettings();
 	await CDP.send('Target.setDiscoverTargets', { discover: true });
 
 	const pending = new Map<string, ReturnType<typeof setTimeout>>();
@@ -15,7 +20,20 @@ async function setupCommunityInjection() {
 		const res = await CDP.send('Target.attachToTarget', { targetId, flatten: true });
 		const sessionId = res?.sessionId;
 		if (!sessionId) return;
-		await CDP.send('Runtime.evaluate', { expression: INJECTION_CODE, awaitPromise: true }, sessionId);
+		const { openExternal } = getSettings();
+		await CDP.send('Runtime.evaluate', { expression: buildInjectionCode(openExternal), awaitPromise: true }, sessionId);
+	};
+
+	reloadOpenProfiles = async () => {
+		const { targetInfos } = await CDP.send('Target.getTargets', {});
+		for (const t of targetInfos ?? []) {
+			if (!PROFILE_URL_PATTERN.test(t?.url ?? '')) continue;
+			try {
+				const res = await CDP.send('Target.attachToTarget', { targetId: t.targetId, flatten: true });
+				const sessionId = res?.sessionId;
+				if (sessionId) await CDP.send('Runtime.evaluate', { expression: 'location.reload()' }, sessionId);
+			} catch (e) { console.error('[CSST.at] reload error:', e); }
+		}
 	};
 
 	const processTarget = (targetInfo: any) => {
@@ -47,7 +65,26 @@ const CsstIcon = () => (
 	</svg>
 );
 
+const Settings = () => {
+	const [openExternal, setOpenExternal] = useState<boolean>(getSettings().openExternal);
+	const onChange = (checked: boolean) => {
+		setOpenExternal(checked);
+		void saveSettings({ ...getSettings(), openExternal: checked }).then(() => reloadOpenProfiles());
+	};
+	return (
+		<div style={{ padding: '16px' }}>
+			<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '8px' }}>
+				<span style={{ fontWeight: 'bold' }}>Open in external browser</span>
+				<Toggle value={openExternal} onChange={onChange} />
+			</div>
+			<div style={{ fontSize: '12px', lineHeight: '1.4', color: '#969696' }}>
+				csst.at is behind Cloudflare, which blocks Steam's in-app browser. Turn this off to open profiles inside Steam instead. Any open profile pages reload automatically when you change this.
+			</div>
+		</div>
+	);
+};
+
 export default definePlugin(() => {
 	setupCommunityInjection().catch(e => console.error('[CSST.at] setup error:', e));
-	return { name: 'csst-at-extension', title: 'CSST.at Extension', icon: <CsstIcon /> };
+	return { name: 'csst-at-extension', title: 'CSST.at Extension', icon: <CsstIcon />, content: <Settings /> };
 });

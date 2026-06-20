@@ -3,7 +3,7 @@
 	"name": "csst-at-extension",
 	"common_name": "CSST.at Extension",
 	"description": "A Millennium plugin that adds csst.at integration to Steam profiles.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"backendType": "lua",
 	"webkitApiVersion": "2.0.0"
 }

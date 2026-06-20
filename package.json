@@ -24,7 +24,7 @@
   },
   "type": "module",
   "name": "csst-at-extension",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Millennium plugin that adds csst.at integration to Steam profiles",
   "main": "./frontend/index.tsx",
   "author": "CSST.at Extension Team",

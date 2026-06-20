@@ -6,6 +6,13 @@ Steam community profile pages. The button links to `https://csst.at/profile/{ste
 [csst.at](https://csst.at/) is a CS2 player-stats aggregator that compares Steam, Faceit,
 Leetify, and csstats.gg stats on a single page.
 
+### Example
+
+![Example](./assets/image.png)
+
+### Millennium Library Manager
+![Example](./assets/settings.png)
+
 ## 📋 Prerequisites
 
 - **[Millennium](https://steambrew.app/)** installed and configured

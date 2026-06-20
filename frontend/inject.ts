@@ -1,4 +1,4 @@
-function csstatInjectMain() {
+function csstatInjectMain(openExternal: boolean) {
 	if (document.querySelector('.csstat-extension-container')) return;
 	if (!/steamcommunity\.com\/(id|profiles)\//.test(location.href)) return;
 
@@ -34,14 +34,18 @@ function csstatInjectMain() {
 		if (!document.getElementById('csstat-extension-style')) {
 			const s = document.createElement('style');
 			s.id = 'csstat-extension-style';
-			s.textContent = ".csstat-btn{display:flex;gap:.5rem;width:100%;height:3rem;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:800;letter-spacing:.04em;font-family:'Motiva Sans',Arial,sans-serif;transition:all .3s cubic-bezier(.23,1,.32,1);text-transform:uppercase;background-color:#21242f;border-radius:5px;cursor:pointer;text-decoration:none;border:none;outline:none;margin:10px 0}.csstat-btn:hover{background-color:#2c3042;text-decoration:none!important}.csstat-btn .dot{color:#a99cf5;transition:color .3s cubic-bezier(.23,1,.32,1)}.csstat-btn:hover .dot{color:#c4b8ff}.csstat-btn svg{height:22px;width:auto;color:#a99cf5;transition:color .3s cubic-bezier(.23,1,.32,1)}.csstat-btn:hover svg{color:#c4b8ff}";
+			s.textContent = ".csstat-btn{display:flex;gap:.5rem;width:100%;height:3rem;align-items:center;justify-content:center;font-size:20px;color:#fff;font-weight:800;letter-spacing:.04em;font-family:'Motiva Sans',Arial,sans-serif;transition:all .3s cubic-bezier(.23,1,.32,1);text-transform:uppercase;background-color:#1a1a1a;border-radius:5px;cursor:pointer;text-decoration:none;border:none;outline:none;margin:10px 0}.csstat-btn:hover{background-color:#2d3748;text-decoration:none!important}.csstat-btn .dot{color:#a99cf5;transition:color .3s cubic-bezier(.23,1,.32,1)}.csstat-btn:hover .dot{color:#c4b8ff}.csstat-btn svg{height:22px;width:auto;color:#a99cf5;transition:color .3s cubic-bezier(.23,1,.32,1)}.csstat-btn:hover svg{color:#c4b8ff}";
 			document.head?.appendChild(s);
 		}
 
 		const div = document.createElement('div');
 		div.className = 'account-row csstat-extension-container';
 		const a = document.createElement('a');
-		a.href = 'https://csst.at/profile/' + steamId;
+		// csst.at is behind Cloudflare, which challenges Steam's in-app CEF browser.
+		// When openExternal is on, route through Steam's protocol to the system browser
+		// (where the user's session passes); otherwise open inside the Steam browser.
+		const profileUrl = 'https://csst.at/profile/' + steamId;
+		a.href = openExternal ? 'steam://openurl_external/' + profileUrl : profileUrl;
 		a.className = 'csstat-btn';
 		a.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><line x1="12" y1="1" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="23"/><line x1="1" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="23" y2="12"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>CSST<span class="dot">.AT</span>';
 		div.appendChild(a);
@@ -62,4 +66,5 @@ function csstatInjectMain() {
 	}
 }
 
-export const INJECTION_CODE = `(${csstatInjectMain.toString()})()`;
+export const buildInjectionCode = (openExternal: boolean) =>
+	`(${csstatInjectMain.toString()})(${openExternal === false ? 'false' : 'true'})`;
