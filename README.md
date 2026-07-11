@@ -13,11 +13,11 @@ Leetify, and csstats.gg stats on a single page.
 ### Millennium Library Manager
 ![Example](./assets/settings.png)
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **[Millennium](https://steambrew.app/)** installed and configured
 
-## 🚀 Installation
+## Installation
 
 ### Build from Source
 
@@ -44,7 +44,7 @@ cp -r . ~/Library/Application\ Support/millennium/plugins/csst-at-extension
 
 Restart Steam, then enable **CSST.at Extension** under **Millennium → Plugins** and restart once more.
 
-## 🛠️ Development
+## Development
 
 ```bash
 bun run dev      # one-shot dev build
@@ -56,9 +56,22 @@ There are no automated tests. To type-check:
 
 ```bash
 npx tsc -p frontend/tsconfig.json --noEmit
+npx tsc -p webkit/tsconfig.json --noEmit
 ```
 
-## 🔗 Links
+## How it works
+
+The webkit bundle ([webkit/index.tsx](webkit/index.tsx)) runs inside the Steam community
+browser and injects the button with a small vanilla-DOM function
+(`csstatInjectMain` in [webkit/inject.ts](webkit/inject.ts)). Settings are stored by a small Lua
+backend ([backend/main.lua](backend/main.lua)) and edited from the plugin's settings panel
+in the Steam client.
+
+> **Plugin Database review note:** the store maintainers require webkit-only injection for
+> plugins of this type. CDP (Chrome DevTools Protocol) injection machinery,
+> raw `window.MILLENNIUM_API` access, and custom-styled settings UI are not permitted.
+
+## Links
 
 - [Millennium Framework](https://github.com/SteamClientHomebrew/Millennium)
 - [csst.at](https://csst.at)

@@ -1,12 +1,12 @@
 import { callable } from '@steambrew/webkit';
-import { csstatInjectMain } from '../frontend/inject';
+import { csstatInjectMain } from './inject';
 
 const PROFILE_URL_PATTERN = /steamcommunity\.com\/(id|profiles)\//;
 
 const GetSettingsRpc = callable<[], string>('GetSettings');
 
-async function readSettings(): Promise<{ openExternal: boolean; injectionMode: string }> {
-	const defaults = { openExternal: true, injectionMode: 'auto' };
+async function readSettings(): Promise<{ openExternal: boolean }> {
+	const defaults = { openExternal: true };
 	try {
 		const raw = await GetSettingsRpc();
 		if (raw) {
@@ -21,7 +21,6 @@ async function readSettings(): Promise<{ openExternal: boolean; injectionMode: s
 
 export default async function WebkitMain() {
 	if (!PROFILE_URL_PATTERN.test(location.href)) return;
-	const { openExternal, injectionMode } = await readSettings();
-	if (injectionMode === 'cdp') return;
-	csstatInjectMain(openExternal, 'webkit');
+	const { openExternal } = await readSettings();
+	csstatInjectMain(openExternal);
 }
