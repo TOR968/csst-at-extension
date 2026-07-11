@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/TOR968/csst-at-extension/compare/v1.0.2...v1.0.3) (2026-07-11)
+
+
+### Bug Fixes
+
+* address Plugin Database review feedback ([6901d68](https://github.com/TOR968/csst-at-extension/commit/6901d68b7d577e56b594721198b685da226a6540))
+
 ## [1.0.2](https://github.com/TOR968/csst-at-extension/compare/v1.0.1...v1.0.2) (2026-06-20)
 
 
