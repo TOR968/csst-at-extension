@@ -16,9 +16,10 @@ const CsstIcon = () => (
 const Settings = () => {
 	const [openExternal, setOpenExternal] = useState<boolean>(getSettings().openExternal);
 
-	const onToggle = (checked: boolean) => {
+	const onToggle = async (checked: boolean) => {
 		setOpenExternal(checked);
-		void saveSettings({ ...getSettings(), openExternal: checked });
+		await saveSettings({ ...getSettings(), openExternal: checked });
+		setOpenExternal(getSettings().openExternal);
 	};
 
 	return (
