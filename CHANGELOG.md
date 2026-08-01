@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/TOR968/csst-at-extension/compare/v1.0.3...v1.0.4) (2026-08-01)
+
+
+### Bug Fixes
+
+* harden profile injection and surface settings write failures ([4d68fb4](https://github.com/TOR968/csst-at-extension/commit/4d68fb4aef1a693fae66bc2aaadd494410bf9b28))
+
 ## [1.0.3](https://github.com/TOR968/csst-at-extension/compare/v1.0.2...v1.0.3) (2026-07-11)
 
 
